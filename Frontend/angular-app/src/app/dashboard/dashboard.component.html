@@ -1,0 +1,17 @@
+<div class="dashboard-container">
+  <!-- Sidebar -->
+  <div class="left-panel">
+    <h2>Job Tracker</h2>
+    <ul>
+      <li routerLink="Dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Dashboard</li>
+      <li routerLink="jobTable" routerLinkActive="active">Jobs</li>
+    </ul>
+    <!-- Logout Button -->
+    <button class="logout-button" (click)="logout()">Logout</button>
+  </div>
+
+  <!-- Main Content -->
+  <div class="right-panel">
+    <router-outlet></router-outlet>
+  </div>
+</div>
