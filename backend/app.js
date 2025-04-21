@@ -13,11 +13,12 @@ app.use(express.json());
 
 // MySQL connection
 const db = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: 'Sai@6303',
-  database: 'job_tracker'
+  host: process.env.DB_HOST || 'localhost',
+  user: process.env.DB_USER ||'root',
+  password:  process.env.DB_PASSWORD || 'Sai@6303',
+  database: process.env.DB_NAME || 'job_tracker'
 });
+
 
 db.connect(err => {
   if (err) throw err;
@@ -155,7 +156,7 @@ app.get('/api/jobs/:id', (req, res) => {
       return res.status(404).json({ message: 'Job not found' });
     }
 
-    res.json(results[0]); // Send just the single job object
+    res.json(results[0]);
   });
 });
 
