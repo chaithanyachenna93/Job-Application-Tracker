@@ -1,68 +1,122 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { JobService } from '../job-table/job-table.service';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Job } from '../models/model';
 
 @Component({
   selector: 'app-edit-jobs',
   standalone: true,
   imports: [
     CommonModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    FormsModule
   ],
   templateUrl: './edit-jobs.component.html',
   styleUrl: './edit-jobs.component.scss'
 })
 export class EditJobsComponent implements OnInit {
   jobForm: FormGroup;
-  id!: number;
-
+  showApplyCard: boolean = false;
+  selectedJob: Job | null = null;
+  resumeLink: string = '';
+  applicationNotes: string = '';
+  isLoading: boolean = false;
+  jobs: Job[] = [];
 
   constructor(
     private fb: FormBuilder,
     private jobService: JobService,
-    private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {
     this.jobForm = this.fb.group({
       companyName: ['', Validators.required],
       jobTitle: ['', Validators.required],
-      jobLocation: ['', Validators.required],
-      jobType: ['', Validators.required],
-      applicationDate: ['', Validators.required],
-      salary: [''],
-      notes: [''],
-      status: ['Applied', Validators.required],
+      applicationDate: [''],
+      status: [''],
+      notes: ['']
     });
   }
 
   ngOnInit(): void {
-    this.id = Number(this.route.snapshot.paramMap.get('id')); // get id from URL
-    this.getJobById(this.id);
+    this.loadJobs();
   }
 
-  getJobById(id: number) {
-    this.jobService.getJobById(id).subscribe(
-      (data: any) => {
-        this.jobForm.patchValue(data); // fill the form with existing job data
+  loadJobs(): void {
+    this.isLoading = true;
+    this.jobService.getJobs().subscribe({
+      next: (jobs) => {
+        this.jobs = jobs;
+        this.isLoading = false;
       },
-      (err: any) => {
-        console.error('Error fetching job by ID:', err);
+      error: (error) => {
+        console.error('Error loading jobs:', error);
+        this.isLoading = false;
       }
-    );
+    });
   }
 
+  openApplyCard(job: Job): void {
+    this.selectedJob = { ...job };
+    this.showApplyCard = true;
+    this.resumeLink = job.ResumeUrl || '';
+  }
 
-  onSubmit() {
-    if (this.jobForm.valid) {
-      this.jobService.updateJob(this.id, this.jobForm.value).subscribe(() => {
-        this.router.navigate(['/jobTable']);
+  submitApplication(): void {
+    if (!this.resumeLink || !this.selectedJob) return;
+
+    this.isLoading = true;
+    const updatedJob: Job = {
+      ...this.selectedJob,
+      status: 'Applied',
+      ResumeUrl: this.resumeLink,
+      notes: this.applicationNotes,
+      applicationDate: new Date().toISOString()
+    };
+
+    this.jobService.updateJob(this.selectedJob.id, updatedJob).subscribe({
+      next: () => {
+        this.loadJobs();
+        this.showApplyCard = false;
+        this.resetForm();
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error applying to job:', error);
+        this.isLoading = false;
+      }
+    });
+  }
+
+  cancelApplication(): void {
+    this.showApplyCard = false;
+    this.resetForm();
+  }
+
+  private resetForm(): void {
+    this.applicationNotes = '';
+    this.resumeLink = '';
+    this.selectedJob = null;
+  }
+
+  deleteJob(jobId: number): void {
+    if (confirm('Are you sure you want to delete this job?')) {
+      this.isLoading = true;
+      this.jobService.deleteJob(jobId).subscribe({
+        next: () => {
+          this.loadJobs();
+        },
+        error: (error) => {
+          console.error('Error deleting job:', error);
+          this.isLoading = false;
+        }
       });
     }
   }
 
-  Cancel() {
-    this.router.navigate(['/jobTable']);
+  editJob(jobId: number): void {
+    this.router.navigate(['/edit-job', jobId]);
   }
 }

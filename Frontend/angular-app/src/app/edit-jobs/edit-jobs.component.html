@@ -1,68 +1,66 @@
-<form [formGroup]="jobForm" (ngSubmit)="onSubmit()" class="container mt-5 p-4 shadow-lg rounded-4 bg-white" style="max-width: 650px;">
-  <h2 class="text-center mb-4 fw-bold text-primary">Edit Job Application</h2>
+<div class="job-application-container">
+  <!-- Apply Card Overlay -->
+  <div *ngIf="showApplyCard" class="apply-card-overlay">
+    <div class="apply-card">
+      <h3>Apply for {{ selectedJob?.jobTitle }} at {{ selectedJob?.companyName }}</h3>
 
-  <div class="row g-3">
-    <div class="col-md-6">
-      <label class="form-label fw-semibold">Company Name</label>
-      <input formControlName="companyName" type="text" class="form-control" placeholder="Company Name">
-    </div>
+      <div class="form-group">
+        <label for="resumeLink">Resume Link (Google Drive / PDF URL)</label>
+        <input
+          type="url"
+          id="resumeLink"
+          [(ngModel)]="resumeLink"
+          placeholder="https://drive.google.com/... or https://example.com/resume.pdf"
+          class="form-control"
+          required
+        >
+      </div>
 
-    <div class="col-md-6">
-      <label class="form-label fw-semibold">Job Title</label>
-      <input formControlName="jobTitle" type="text" class="form-control" placeholder="Job Title">
-    </div>
+      <div class="form-group">
+        <label for="applicationNotes">Notes (Optional)</label>
+        <textarea
+          id="applicationNotes"
+          [(ngModel)]="applicationNotes"
+          placeholder="Any additional notes about this application..."
+          class="form-control"
+          rows="3"
+        ></textarea>
+      </div>
 
-    <div class="col-md-6">
-      <label class="form-label fw-semibold">Location</label>
-      <input formControlName="jobLocation" type="text" class="form-control" placeholder="City, State">
-    </div>
-
-    <div class="col-md-6">
-      <label class="form-label fw-semibold">Job Type</label>
-      <select formControlName="jobType" class="form-select">
-        <option value="" disabled selected>Select type</option>
-        <option value="Full-time">Full-time</option>
-        <option value="Part-time">Part-time</option>
-        <option value="Internship">Internship</option>
-        <option value="Contract">Contract</option>
-
-      </select>
-    </div>
-
-    <div class="col-md-6">
-      <label class="form-label fw-semibold">Application Date</label>
-      <input formControlName="applicationDate" type="date" class="form-control">
-    </div>
-
-    <div class="col-md-6">
-      <label class="form-label fw-semibold">Salary</label>
-      <div class="input-group">
-        <span class="input-group-text">Rs</span>
-        <input formControlName="salary" type="number" class="form-control" placeholder="e.g. 60000">
+      <div class="apply-card-buttons">
+        <button
+          (click)="submitApplication()"
+          class="submit-btn"
+          [disabled]="!resumeLink || isLoading"
+        >
+          {{ isLoading ? 'Submitting...' : 'Submit' }}
+        </button>
+        <button
+          (click)="cancelApplication()"
+          class="cancel-btn"
+          [disabled]="isLoading"
+        >
+          Cancel
+        </button>
       </div>
     </div>
-
-    <div class="col-12">
-      <label class="form-label fw-semibold">Notes</label>
-      <textarea formControlName="notes" class="form-control" rows="3" placeholder="Optional notes..."></textarea>
-    </div>
-
-    <div class="col-12">
-      <label class="form-label fw-semibold">Status</label>
-      <select formControlName="status" class="form-select">
-        <option value="" disabled selected>Select status</option>
-        <option value="Applied">Applied</option>
-        <option value="Interview">Interview</option>
-        <option value="Rejected">Rejected</option>
-        <option value="Offered">Offered</option>
-        <option value="On Hold">On Hold</option>
-      </select>
-    </div>
-
-    <div class="col-12 mt-4 d-flex justify-content-between">
-      <button type="submit" class="btn btn-primary w-50 me-2 py-2 fs-5" [disabled]="!jobForm.valid">Submit</button>
-      <button type="button" class="btn btn-secondary w-50 py-2 fs-5" (click)="Cancel()">Cancel</button>
-    </div>
-
   </div>
-</form>
+
+  <!-- Main Content -->
+  <div class="job-list-container">
+    <h2>Job Applications</h2>
+
+    <div *ngIf="isLoading && jobs.length === 0" class="loading-message">
+      Loading jobs...
+    </div>
+
+    <div *ngIf="!isLoading && jobs.length === 0" class="no-jobs-message">
+      No job applications found.
+    </div>
+
+    <div *ngIf="jobs.length > 0" class="job-list">
+      <!-- Job list table or cards would go here -->
+      <!-- You can implement your job list display as needed -->
+    </div>
+  </div>
+</div>

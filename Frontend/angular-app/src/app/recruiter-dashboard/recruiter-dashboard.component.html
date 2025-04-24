@@ -1,0 +1,75 @@
+<!-- Navbar -->
+<mat-toolbar color="primary" class="mat-elevation-z4">
+  <span class="fw-bold">Job Tracker</span>
+  <span class="spacer"></span>
+  <span class="text-uppercase fw-semibold me-3">Dashboard</span>
+  <button mat-icon-button color="accent" aria-label="Logout" (click)="logout()">
+    <mat-icon>logout</mat-icon>
+  </button>
+</mat-toolbar>
+
+<!-- Main Content -->
+<div class="container mt-5">
+  <h1 class="text-center fw-bold">Recruiter Dashboard</h1>
+  <div class="text-end mt-4">
+    <button mat-raised-button color="primary" (click)="openPostJobDialog()">
+      Post New Job
+    </button>
+  </div>
+
+  <!-- Card Display Section -->
+  <div class="row mt-5">
+    <div class="col-12 col-md-4 mb-4" *ngFor="let job of jobs">
+      <mat-card class="mat-elevation-z8" (click)="showAppliedUsers(job.id)">
+        <mat-card-header>
+          <mat-card-title class="fw-bold">{{ job.jobTitle }}</mat-card-title>
+          <mat-card-subtitle>{{ job.companyName }}</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <p><strong>Location:</strong> {{ job.jobLocation }}</p>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+
+  <!-- Applied Users Table -->
+  <div *ngIf="selectedUsers && selectedUsers.length > 0" class="mt-5">
+    <h2 class="fw-bold">Applied Users</h2>
+    <table mat-table [dataSource]="selectedUsers" class="mat-elevation-z2 w-100">
+
+      <!-- Name Column -->
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef> Name </th>
+        <td mat-cell *matCellDef="let user"> {{ user.userLastName }} </td>
+      </ng-container>
+
+      <!-- Email Column -->
+      <ng-container matColumnDef="email">
+        <th mat-header-cell *matHeaderCellDef> Email </th>
+        <td mat-cell *matCellDef="let user"> {{ user.userEmail }} </td>
+      </ng-container>
+
+      <!-- Status Column -->
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef> Status </th>
+        <td mat-cell *matCellDef="let user">
+          <mat-form-field appearance="fill">
+            <mat-select [(value)]="user.applicationStatus" (selectionChange)="updateStatus(user)">
+              <mat-option *ngFor="let status of validStatuses" [value]="status">
+                {{ status }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="['name', 'email', 'status']"></tr>
+      <tr mat-row *matRowDef="let row; columns: ['name', 'email', 'status']"></tr>
+    </table>
+  </div>
+
+  <!-- Fallback if no users -->
+  <div *ngIf="selectedUsers && selectedUsers.length === 0" class="mt-5 text-center">
+    <p>No users have applied to this job yet.</p>
+  </div>
+</div>

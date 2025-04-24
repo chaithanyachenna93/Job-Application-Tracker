@@ -15,9 +15,6 @@ import { Router } from '@angular/router';
   styleUrl: './add-jobs.component.scss'
 })
 export class AddJobsComponent {
-Cancel() {
-this.router.navigate(['jobTable']);
-}
   jobForm: FormGroup;
 
   constructor(
@@ -30,18 +27,30 @@ this.router.navigate(['jobTable']);
       jobTitle: ['', Validators.required],
       jobLocation: ['', Validators.required],
       jobType: ['', Validators.required],
-      applicationDate: ['', Validators.required],
       salary: [''],
-      notes: [''],
-      status: ['Applied', Validators.required],
+      notes: ['']
+      // We won't add createdBy, updatedBy, userId here if setting dynamically
     });
+  }
+
+  Cancel() {
+    this.router.navigate(['recruiter']);
   }
 
   onSubmit() {
     if (this.jobForm.valid) {
-      this.jobService.addJob(this.jobForm.value).subscribe(() => {
-        this.router.navigate(['/jobTable']);
+      const recruiterId = localStorage.getItem('userId');
+
+      const jobData = {
+        ...this.jobForm.value,
+        recruiterId: recruiterId, // assuming your backend expects this
+        
+      };
+
+      this.jobService.addJob(jobData).subscribe(() => {
+        this.router.navigate(['/recruiter']);
       });
     }
   }
+
 }

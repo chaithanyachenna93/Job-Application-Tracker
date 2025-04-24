@@ -1,0 +1,104 @@
+<mat-toolbar color="primary" class="mat-elevation-z4">
+  <span class="fw-bold">Job Tracker</span>
+
+  <span class="spacer"></span>
+
+  <div class="right-items">
+    <span class="text-uppercase fw-semibold me-3" style="cursor: pointer" (click)="jobs()">Jobs</span>
+    <span class="text-uppercase fw-semibold me-3" style="cursor: pointer" (click)="dashboard()">Dashboard</span>
+    <button mat-icon-button color="accent" aria-label="Logout" (click)="logout()">
+      <mat-icon>logout</mat-icon>
+    </button>
+  </div>
+</mat-toolbar>
+
+<div class="container mt-5">
+  <h1 class="text-center fw-bold">User Dashboard</h1>
+
+  <div *ngIf="isLoading" class="loading-overlay">
+    <mat-spinner diameter="50"></mat-spinner>
+  </div>
+
+  <div class="cards-grid">
+    <div class="card total">
+      <h3>Total Applications</h3>
+      <p>{{ stats?.total || 0 }}</p>
+    </div>
+    <div class="card Applied">
+      <h3>Applied</h3>
+      <p>{{ stats?.Applied || 0 }}</p>
+    </div>
+    <div class="card status">
+      <h3>Accepted / Rejected</h3>
+      <p>{{ stats?.offers || 0 }} / {{ stats?.rejected || 0 }}</p>
+    </div>
+  </div>
+
+  <div *ngIf="showEditCard" class="edit-card-overlay">
+    <div class="edit-card">
+      <h3>Edit Job Application</h3>
+      <p><strong>Company:</strong> {{ editingJob.companyName }}</p>
+      <p><strong>Position:</strong> {{ editingJob.jobTitle }}</p>
+
+      <div class="form-group">
+        <label for="resumeLink">Resume Link (Google Drive / PDF URL)</label>
+        <input
+          type="url"
+          id="resumeLink"
+          [(ngModel)]="editingJob.ResumeUrl"
+          placeholder="https://drive.google.com/... or https://example.com/resume.pdf"
+          class="form-control"
+          required
+        />
+      </div>
+
+      <div class="edit-card-buttons">
+        <button (click)="updateJob()" class="save-btn" [disabled]="isLoading || !editingJob.ResumeUrl">
+          {{ isLoading ? 'Saving...' : 'Save' }}
+        </button>
+        <button (click)="cancelEdit()" class="cancel-btn">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="job-list mt-4">
+    <h3>All Applications</h3>
+    <div *ngIf="isJobLoading" class="text-center">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+    <table *ngIf="!isJobLoading" aria-label="Job Applications Table" class="job-table">
+      <thead>
+        <tr>
+          <th>Company</th>
+          <th>Position</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let job of allJobs">
+          <td>{{ job.companyName }}</td>
+          <td>{{ job.jobTitle }}</td>
+          <td>{{ job.status }}</td>
+          <td>
+            <button mat-icon-button color="primary"
+              aria-label="Edit Job"
+              (click)="openEditCard(job)"
+              [disabled]="isLoading">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button color="warn"
+              aria-label="Delete Job"
+              (click)="deleteJob(job.jobId)"
+              [disabled]="isLoading">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div *ngIf="!isJobLoading && allJobs.length === 0" class="no-jobs">
+      <p>No job applications found.</p>
+    </div>
+  </div>
+</div>
