@@ -16,7 +16,8 @@ const db = mysql.createConnection({
   host: process.env.DB_HOST || 'localhost',
   user: process.env.DB_USER ||'root',
   password:  process.env.DB_PASSWORD || 'Sai@6303',
-  database: process.env.DB_NAME || 'job_tracker'
+  database: process.env.DB_NAME || 'job_tracker',
+  port: process.env.DB_PORT || 3306
 });
 
 
@@ -320,13 +321,13 @@ app.get('/api/stats', (req, res) => {
   }
 
   const query = `
-    SELECT 
-      COUNT(*) AS total,
-      SUM(status = 'Applied') AS applied,
-      SUM(status = 'Offered') AS offers,
-      SUM(status = 'Rejected') AS rejected
-    FROM jobapplications
-    WHERE userId = ?;
+  SELECT 
+  COUNT(*) AS total,
+  SUM(LOWER(status) = 'applied') AS Applied,
+  SUM(LOWER(status) = 'offered') AS offers,
+  SUM(LOWER(status) = 'rejected') AS rejected
+FROM jobapplications
+WHERE userId = ?;
   `;
 
   db.query(query, [userId], (err, result) => {
