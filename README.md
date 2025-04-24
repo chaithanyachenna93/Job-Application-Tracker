@@ -27,14 +27,8 @@
  - Node.js >= 14
  - Angular CLI
  - MySQL Server
- - user Login Details=>phone Number:6303461055,password:Sai@6303
+
  
- 
- ---
- 
- @@ -39,4 +39,4 @@
  git clone https://github.com/your-username/job-application-tracker.git
  cd job-application-tracker
- 
- ##user login=>ph
-  user Login Details=>phone Number:6303461055,password:Sai@6303
+
